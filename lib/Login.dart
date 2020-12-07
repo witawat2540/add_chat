@@ -18,6 +18,23 @@ class _LoginState extends State<Login> {
   bool isLoggedIn = false;
   User currentUser;
 
+  void isSignedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs = await SharedPreferences.getInstance();
+
+    isLoggedIn = await googleSignIn.isSignedIn();
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Main_chat(
+                  currentUserId: prefs.getString('id'),
+                )),
+      );
+    }
+  }
+
   Future<Null> handleSignIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     GoogleSignInAccount googleUser = await googleSignIn.signIn();
@@ -34,10 +51,11 @@ class _LoginState extends State<Login> {
     if (user != null) {
       final QuerySnapshot result = await FirebaseFirestore.instance
           .collection('users')
-          .where('id', isEqualTo: user.uid).get();
+          .where('id', isEqualTo: user.uid)
+          .get();
       //print(result);
-     final List<DocumentSnapshot> documents = result.documents;
-     //print(documents);
+      final List<DocumentSnapshot> documents = result.documents;
+      //print(documents);
       if (documents.length == 0) {
         FirebaseFirestore.instance.collection('users').add({
           'nickname': user.displayName,
@@ -46,14 +64,6 @@ class _LoginState extends State<Login> {
           'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
           'chattingWith': null
         });
-        FirebaseFirestore.instance.collection('users').document(user.uid).setData({
-          'nickname': user.displayName,
-          'photoUrl': user.photoUrl,
-          'id': user.uid,
-          'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
-          'chattingWith': null
-        });
-
         // Write data to local
         currentUser = user;
         await prefs.setString('id', currentUser.uid);
@@ -68,12 +78,20 @@ class _LoginState extends State<Login> {
         //print(documents[0]['nickname']);
 
       }
-       Navigator.pushReplacement(
+      await Navigator.pushReplacement(
           context,
           CupertinoPageRoute(
-            builder: (context) => Main_chat(),
+            builder: (context) => Main_chat(
+              currentUserId: user.uid,
+            ),
           ));
     } else {}
+  }
+
+  @override
+  void initState() {
+    isSignedIn();
+    super.initState();
   }
 
   @override
