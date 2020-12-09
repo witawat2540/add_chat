@@ -3,10 +3,14 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/Login.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'Chat.dart';
 
 class Main_chat extends StatefulWidget {
   final String currentUserId;
@@ -95,6 +99,24 @@ class _Main_chatState extends State<Main_chat> {
 //        payload: 'item x');
   }
 
+  Future<Null> handleSignOut() async {
+    this.setState(() {
+      isLoading = true;
+    });
+
+    await FirebaseAuth.instance.signOut();
+    await googleSignIn.disconnect();
+    await googleSignIn.signOut();
+
+    this.setState(() {
+      isLoading = false;
+    });
+
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Login()),
+            (Route<dynamic> route) => false);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -108,6 +130,14 @@ class _Main_chatState extends State<Main_chat> {
     return Scaffold(
       appBar: AppBar(
         title: Text("App Chat"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: (){
+              handleSignOut();
+            },
+          )
+        ],
       ),
       body: WillPopScope(
         child: Stack(
@@ -201,7 +231,7 @@ class _Main_chatState extends State<Main_chat> {
                       Container(
                         child: Text(
                           'Nickname: ${document.data()['nickname']}',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: Colors.white),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
@@ -209,7 +239,7 @@ class _Main_chatState extends State<Main_chat> {
                       Container(
                         child: Text(
                           'About me: ${document.data()['aboutMe'] ?? 'Not available'}',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(color: Colors.white),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
@@ -222,15 +252,15 @@ class _Main_chatState extends State<Main_chat> {
             ],
           ),
           onPressed: () {
-            /*Navigator.push(
+            Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => Chat(
-                      peerId: document.documentID,
-                      peerAvatar: document['photoUrl'],
-                    )));*/
+                      peerId: document.id,
+                      peerAvatar: document.data()['photoUrl'],
+                    )));
           },
-          color: Colors.grey,
+          color: Colors.indigo,
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
