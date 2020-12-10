@@ -37,9 +37,9 @@ class _Main_chatState extends State<Main_chat> {
 
     firebaseMessaging.configure(onMessage: (Map<String, dynamic> message) {
       print('onMessage: $message');
-      // Platform.isAndroid
-      //     ? showNotification(message['notification'])
-      //     : showNotification(message['aps']['alert']);
+      Platform.isAndroid
+          ? showNotification(message['notification'])
+          : showNotification(message['aps']['alert']);
       return;
     }, onResume: (Map<String, dynamic> message) {
       print('onResume: $message');
