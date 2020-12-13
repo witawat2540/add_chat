@@ -49,11 +49,11 @@ class _Main_chatState extends State<Main_chat> {
       return;
     });
 
+    print(currentUserId);
     firebaseMessaging.getToken().then((token) {
       print('token: $token');
       FirebaseFirestore.instance
-          .collection('users')
-          .document(currentUserId)
+          .collection('users').doc(currentUserId)
           .updateData({'pushToken': token});
     }).catchError((err) {
       //Fluttertoast.showToast(msg: err.message.toString());
@@ -72,8 +72,8 @@ class _Main_chatState extends State<Main_chat> {
   void showNotification(message) async {
     var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
       Platform.isAndroid
-          ? 'com.dfa.flutterchatdemo'
-          : 'com.duytq.flutterchatdemo',
+          ? 'com.witawatd.flutter_chat'
+          : 'com.witawatd.flutter_chat',
       'Flutter chat demo',
       'your channel description',
       playSound: true,
@@ -86,7 +86,7 @@ class _Main_chatState extends State<Main_chat> {
         android: androidPlatformChannelSpecifics,
         iOS: iOSPlatformChannelSpecifics);
 
-    print(message);
+    //print(message);
 //    print(message['body'].toString());
 //    print(json.encode(message));
 
@@ -114,7 +114,7 @@ class _Main_chatState extends State<Main_chat> {
 
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => Login()),
-            (Route<dynamic> route) => false);
+        (Route<dynamic> route) => false);
   }
 
   @override
@@ -133,7 +133,7 @@ class _Main_chatState extends State<Main_chat> {
         actions: [
           IconButton(
             icon: Icon(Icons.close),
-            onPressed: (){
+            onPressed: () {
               handleSignOut();
             },
           )
@@ -147,10 +147,8 @@ class _Main_chatState extends State<Main_chat> {
               child: StreamBuilder<QuerySnapshot>(
                 stream:
                     FirebaseFirestore.instance.collection('users').snapshots(),
-                builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot
-                      .connectionState ==
-                      ConnectionState.waiting) {
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
                       child: CircularProgressIndicator(
                         valueColor:
@@ -256,9 +254,9 @@ class _Main_chatState extends State<Main_chat> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => Chat(
-                      peerId: document.id,
-                      peerAvatar: document.data()['photoUrl'],
-                    )));
+                          peerId: document.id,
+                          peerAvatar: document.data()['photoUrl'],
+                        )));
           },
           color: Colors.indigo,
           padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),

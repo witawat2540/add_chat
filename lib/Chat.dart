@@ -65,19 +65,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
   readLocal() async {
     prefs = await SharedPreferences.getInstance();
-    id = prefs.getString('id') ?? '';
+    id =  prefs.getString('id') ?? '';
     if (id.hashCode <= peerId.hashCode) {
       groupChatId = '$id-$peerId';
     } else {
       groupChatId = '$peerId-$id';
     }
 
-    FirebaseFirestore.instance
+   await FirebaseFirestore.instance
         .collection('users')
-        .document(id)
+        .doc(id)
         .updateData({'chattingWith': peerId});
 
     setState(() {});
+    print(groupChatId);
   }
 
   void onFocusChange() {

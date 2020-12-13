@@ -57,7 +57,7 @@ class _LoginState extends State<Login> {
       final List<DocumentSnapshot> documents = result.documents;
       //print(documents);
       if (documents.length == 0) {
-        FirebaseFirestore.instance.collection('users').add({
+        FirebaseFirestore.instance.collection('users').doc(user.uid).set({
           'nickname': user.displayName,
           'photoUrl': user.photoUrl,
           'id': user.uid,
